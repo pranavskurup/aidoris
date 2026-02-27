@@ -2,3 +2,4 @@
 set -e
 
 bun .husky/validate-workspace-folders.ts
+bun .husky/validate-catalog-dependencies.ts

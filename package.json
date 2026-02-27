@@ -14,9 +14,14 @@
     "schema/**"
   ],
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "migrate:catalog": "bun scripts/migrate-dependencies-to-catalog.ts"
   },
   "devDependencies": {
+    "@types/bun": "catalog:@types/bun",
+    "husky": "catalog:husky"
+  },
+  "catalog": {
     "@types/bun": "^1.3.9",
     "husky": "^9.1.7"
   }
