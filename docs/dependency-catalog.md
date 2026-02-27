@@ -42,6 +42,18 @@ When you add new dependencies to the workspace, their concrete versions should b
 
 > The `config/ts/package.json` file may also be used by tooling (such as the migration script) as a source of canonical versions for shared tooling dependencies.
 
+```mermaid
+graph TD
+  root[Root package.json] --> catalog["catalog (default versions)"]
+  root --> catalogs["catalogs.* (named groups)"]
+
+  wsPkg1[Workspace package.json A] --> depA["dep-a: \"catalog:\""]
+  wsPkg2[Workspace package.json B] --> depB["dep-b: \"catalog:test\""]
+
+  depA --> catalog
+  depB --> catalogs
+```
+
 ---
 
 ### Allowed dependency specifiers in workspaces

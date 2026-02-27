@@ -14,6 +14,19 @@ When you open the workspace files, the explorer typically includes folders such 
 - `schema/**` — shared schemas and types.
 - `.config/` — the workspace configuration files themselves.
 
+```mermaid
+graph TD
+  wsSingle[.config/aidoris.code-workspace] --> devRoot[develop/ (.)]
+  wsMulti[.config/aidoris.worktree.code-workspace] --> mainRoot[../../main]
+  wsMulti --> devRoot2[../../develop]
+
+  subgraph Explorer views
+    devRoot
+    devRoot2
+    mainRoot
+  end
+```
+
 The workspace files are:
 
 - `aidoris.code-workspace` — single-root workspace for this develop tree

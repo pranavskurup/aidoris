@@ -11,6 +11,20 @@ bun run prepare
 
 This command configures Husky so that the hooks run automatically during `git commit`.
 
+```mermaid
+flowchart LR
+  dev[Developer] --> commit[git commit]
+  commit --> husky[Husky pre-commit]
+  husky --> validateDeps[validate-catalog-dependencies.ts]
+  husky --> validateWs[validate-workspace-folders.ts]
+  validateDeps --> depsOk{Catalogs valid?}
+  validateWs --> wsOk{Workspace files valid?}
+  depsOk -- yes --> done[Commit succeeds]
+  wsOk -- yes --> done
+  depsOk -- no --> failDeps[Commit blocked\n(fix catalog issues)]
+  wsOk -- no --> failWs[Commit blocked\n(fix workspace files)]
+```
+
 ---
 
 ### Dependency catalog validation (pre-commit)

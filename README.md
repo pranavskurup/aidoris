@@ -21,6 +21,18 @@ The following folders are managed as Bun workspaces in this monorepo (see `packa
 - `schema/**` — shared schemas and types used across services.
 - `.config/` — VS Code / VS Code–based workspace files.
 
+```mermaid
+graph TD
+  root[develop workspace root] --> cli[cli/** - CLI tools]
+  root --> config[config/** - Shared config & tooling]
+  root --> daemon[daemon/** - Daemon services]
+  root --> libDb[lib/db - DB helpers]
+  root --> libRepo[lib/repo/** - Repository layer]
+  root --> libSvc[lib/svc/** - Service layer]
+  root --> schema[schema/** - Shared schemas]
+  root --> dotConfig[.config/ - Workspace files]
+```
+
 ### Tooling & package manager
 
 This workspace uses **Bun** as both the package manager and runtime, configured via the `packageManager` field in `package.json`.  
@@ -52,6 +64,17 @@ Workspace `package.json` files are expected to reference dependencies using:
 - `catalog:` — use the default catalog version from the root `catalog` object.
 - `catalog:<name>` — use a named catalog from the root `catalogs.<name>` object.
 - `workspace:*` — depend on another workspace package whose `name` matches the dependency name.
+
+```mermaid
+graph TD
+  wsPkg[Workspace package.json] --> depCatalog["dep: \"catalog:\""]
+  wsPkg --> depNamed["dep: \"catalog:test\""]
+  wsPkg --> depWorkspace["dep: \"workspace:*\""]
+
+  depCatalog --> rootCatalog["Root package.json\ncatalog"]
+  depNamed --> rootNamedCatalogs["Root package.json\ncatalogs.test"]
+  depWorkspace --> otherWorkspace["Another workspace\npackage.json (name = dep)"]
+```
 
 You can normalize existing dependency versions and populate the root catalogs using the migration script:
 

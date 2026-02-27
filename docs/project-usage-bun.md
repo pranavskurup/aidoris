@@ -19,6 +19,17 @@ The main workspace patterns include:
 - `lib/svc/**` — service layer and business logic.
 - `schema/**` — shared schemas and types used across services.
 
+```mermaid
+graph TD
+  bun[Bun-powered monorepo (develop)] --> cli[cli/** - CLI]
+  bun --> config[config/** - Config & tooling]
+  bun --> daemon[daemon/** - Daemons]
+  bun --> libDb[lib/db - DB helpers]
+  bun --> libRepo[lib/repo/** - Repositories]
+  bun --> libSvc[lib/svc/** - Services]
+  bun --> schema[schema/** - Schemas]
+```
+
 Common usage patterns:
 
 - Install all dependencies for every workspace from this workspace:
@@ -123,6 +134,16 @@ Examples (as currently defined in the root `package.json`):
   ```bash
   bun run migrate:catalog
   ```
+
+```mermaid
+flowchart TD
+  dev[Developer] --> term[Terminal in develop/]
+  term --> install[bun install]
+  term --> prepare[bun run prepare]
+  term --> migrate[bun run migrate:catalog]
+  prepare --> hooks[Husky hooks installed]
+  migrate --> catalogs[Root catalog & catalogs updated]
+```
 
 > The exact set of available scripts depends on the current contents of this monorepo and may grow over time.  
 > Check the `scripts` section of the root `package.json` (and any workspace package’s `package.json`) to see which commands are available, and run them with `bun run <script-name>`.
