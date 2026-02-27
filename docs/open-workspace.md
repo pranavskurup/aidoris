@@ -16,11 +16,11 @@ When you open the workspace files, the explorer typically includes folders such 
 
 ```mermaid
 graph TD
-  wsSingle[.config/aidoris.code-workspace] --> devRoot[develop/ (.)]
-  wsMulti[.config/aidoris.worktree.code-workspace] --> mainRoot[../../main]
-  wsMulti --> devRoot2[../../develop]
+  wsSingle[".config/aidoris.code-workspace"] --> devRoot["develop workspace"]
+  wsMulti[".config/aidoris.worktree.code-workspace"] --> mainRoot["../../main"]
+  wsMulti --> devRoot2["../../develop"]
 
-  subgraph Explorer views
+  subgraph "Explorer views"
     devRoot
     devRoot2
     mainRoot

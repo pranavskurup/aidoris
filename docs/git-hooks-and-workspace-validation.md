@@ -21,8 +21,8 @@ flowchart LR
   validateWs --> wsOk{Workspace files valid?}
   depsOk -- yes --> done[Commit succeeds]
   wsOk -- yes --> done
-  depsOk -- no --> failDeps[Commit blocked\n(fix catalog issues)]
-  wsOk -- no --> failWs[Commit blocked\n(fix workspace files)]
+  depsOk -- no --> failDeps[Commit blocked - fix catalog issues]
+  wsOk -- no --> failWs[Commit blocked - fix workspace files]
 ```
 
 ---

@@ -21,13 +21,13 @@ The main workspace patterns include:
 
 ```mermaid
 graph TD
-  bun[Bun-powered monorepo (develop)] --> cli[cli/** - CLI]
-  bun --> config[config/** - Config & tooling]
-  bun --> daemon[daemon/** - Daemons]
-  bun --> libDb[lib/db - DB helpers]
-  bun --> libRepo[lib/repo/** - Repositories]
-  bun --> libSvc[lib/svc/** - Services]
-  bun --> schema[schema/** - Schemas]
+  bun["Bun-powered monorepo (develop)"] --> cli["cli/** - CLI"]
+  bun --> config["config/** - Config & tooling"]
+  bun --> daemon["daemon/** - Daemons"]
+  bun --> libDb["lib/db - DB helpers"]
+  bun --> libRepo["lib/repo/** - Repositories"]
+  bun --> libSvc["lib/svc/** - Services"]
+  bun --> schema["schema/** - Schemas"]
 ```
 
 Common usage patterns:
