@@ -11,6 +11,7 @@ type PackageJson = {
   peerDependencies?: Record<string, string>;
   optionalDependencies?: Record<string, string>;
   catalog?: Record<string, string>;
+  catalogs?: Record<string, Record<string, string>>;
 };
 
 const ROOT_PACKAGE_JSON_PATH = "package.json";
@@ -38,21 +39,18 @@ const readJsonFile = async <T>(path: string): Promise<T> => {
   }
 };
 
-const loadRootCatalog = async (): Promise<Record<string, string>> => {
+const loadRootCatalogInfo = async (): Promise<{
+  catalog: Record<string, string>;
+  catalogs: Record<string, Record<string, string>>;
+}> => {
   const rootPackageJson = await readJsonFile<PackageJson>(
     ROOT_PACKAGE_JSON_PATH
   );
-  const catalog = rootPackageJson.catalog ?? {};
 
-  if (Object.keys(catalog).length === 0) {
-    console.error(
-      '[pre-commit] Root package.json does not define any "catalog" entries.\n' +
-        'Please define a "catalog" object and reference it from workspace dependencies.'
-    );
-    process.exit(1);
-  }
-
-  return catalog;
+  return {
+    catalog: rootPackageJson.catalog ?? {},
+    catalogs: rootPackageJson.catalogs ?? {},
+  };
 };
 
 const collectWorkspacePackageJsonPaths = async (): Promise<string[]> => {
@@ -79,7 +77,8 @@ const validateDependencyRecord = (
   sectionName: DependencySectionName,
   record: Record<string, string> | undefined,
   filePath: string,
-  catalog: Record<string, string>,
+  rootCatalog: Record<string, string>,
+  rootCatalogs: Record<string, Record<string, string>>,
   violations: string[]
 ) => {
   if (!record) {
@@ -93,19 +92,31 @@ const validateDependencyRecord = (
       continue;
     }
 
-    if (specifier.startsWith(CATALOG_PREFIX)) {
-      const catalogKey = specifier.slice(CATALOG_PREFIX.length);
-
-      if (!catalogKey) {
+    if (specifier === CATALOG_PREFIX) {
+      if (!Object.prototype.hasOwnProperty.call(rootCatalog, dependencyName)) {
         violations.push(
-          `[${filePath}] ${sectionName} dependency "${dependencyName}" is using "${CATALOG_PREFIX}" without a key. Expected "${CATALOG_PREFIX}<catalog-key>".`
+          `[${filePath}] ${sectionName} dependency "${dependencyName}" is using "${CATALOG_PREFIX}" but "${dependencyName}" is not defined in the root package.json "catalog" object.`
         );
+      }
+
+      continue;
+    }
+
+    if (specifier.startsWith(CATALOG_PREFIX)) {
+      const catalogName = specifier.slice(CATALOG_PREFIX.length);
+
+      if (!catalogName) {
         continue;
       }
 
-      if (!Object.prototype.hasOwnProperty.call(catalog, catalogKey)) {
+      const group = rootCatalogs[catalogName];
+
+      if (
+        !group ||
+        !Object.prototype.hasOwnProperty.call(group, dependencyName)
+      ) {
         violations.push(
-          `[${filePath}] ${sectionName} dependency "${dependencyName}" references catalog key "${catalogKey}" which is not defined in the root package.json "catalog" object.`
+          `[${filePath}] ${sectionName} dependency "${dependencyName}" is using "${specifier}" but "${dependencyName}" is not defined in the root package.json "catalogs.${catalogName}" object.`
         );
       }
 
@@ -113,13 +124,13 @@ const validateDependencyRecord = (
     }
 
     violations.push(
-      `[${filePath}] ${sectionName} dependency "${dependencyName}" must use "${CATALOG_PREFIX}<catalog-key>" or "${WORKSPACE_VALUE}", but found "${specifier}".`
+      `[${filePath}] ${sectionName} dependency "${dependencyName}" must use "${CATALOG_PREFIX}" (default catalog), "${CATALOG_PREFIX}<catalog-name>" (named catalog), or "${WORKSPACE_VALUE}", but found "${specifier}".`
     );
   }
 };
 
 const main = async () => {
-  const catalog = await loadRootCatalog();
+  const { catalog, catalogs } = await loadRootCatalogInfo();
   const packageJsonPaths = await collectWorkspacePackageJsonPaths();
   const violations: string[] = [];
 
@@ -131,6 +142,7 @@ const main = async () => {
       packageJson.dependencies,
       filePath,
       catalog,
+      catalogs,
       violations
     );
 
@@ -139,6 +151,7 @@ const main = async () => {
       packageJson.devDependencies,
       filePath,
       catalog,
+      catalogs,
       violations
     );
 
@@ -147,6 +160,7 @@ const main = async () => {
       packageJson.peerDependencies,
       filePath,
       catalog,
+      catalogs,
       violations
     );
 
@@ -155,6 +169,7 @@ const main = async () => {
       packageJson.optionalDependencies,
       filePath,
       catalog,
+      catalogs,
       violations
     );
   }
@@ -162,7 +177,7 @@ const main = async () => {
   if (violations.length > 0) {
     console.error(
       "[pre-commit] Dependency catalog validation failed.\n" +
-        'All workspace dependencies (except those with value "workspace:*") must refer to entries in the root package.json "catalog" using the "catalog:<key>" syntax.\n\n' +
+        'All workspace dependencies (except those with value "workspace:*") must refer to entries in the root package.json "catalog" using the "catalog:" syntax or in "catalogs" using the "catalog:<catalog-name>" syntax.\n\n' +
         "The following issues were found:\n\n" +
         violations.map((message) => `- ${message}`).join("\n") +
         "\n"

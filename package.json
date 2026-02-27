@@ -18,8 +18,8 @@
     "migrate:catalog": "bun scripts/migrate-dependencies-to-catalog.ts"
   },
   "devDependencies": {
-    "@types/bun": "catalog:@types/bun",
-    "husky": "catalog:husky"
+    "@types/bun": "catalog:",
+    "husky": "catalog:"
   },
   "catalog": {
     "@types/bun": "^1.3.9",

@@ -6,6 +6,7 @@ type PackageJson = {
   private?: boolean;
   workspaces?: string[];
   catalog?: Record<string, string>;
+  catalogs?: Record<string, Record<string, string>>;
   dependencies?: DependencyRecord;
   devDependencies?: DependencyRecord;
   peerDependencies?: DependencyRecord;
@@ -114,6 +115,12 @@ const main = async () => {
     ...(rootPackageJson.catalog ?? {}),
   };
 
+  const catalogs: Record<string, Record<string, string>> = {};
+
+  for (const [name, group] of Object.entries(rootPackageJson.catalogs ?? {})) {
+    catalogs[name] = { ...group };
+  }
+
   const existingConfigDependencies: DependencyRecord = {
     ...(configTsPackageJson?.dependencies ?? {}),
   };
@@ -133,7 +140,8 @@ const main = async () => {
     }
   }
 
-  const missingCatalogKeys: string[] = [];
+  const missingDefaultCatalogEntries: string[] = [];
+  const missingNamedCatalogEntries: string[] = [];
   const missingWorkspaceDependencies: string[] = [];
   const changedPackagePaths = new Set<string>();
 
@@ -148,76 +156,109 @@ const main = async () => {
         continue;
       }
 
-      // Never rewrite versions in config/ts/package.json – it is the source of truth for versions.
-      const shouldMigrateThisFile =
-        !isConfigTsPackageJson || isRootPackageJson;
+      // Only rewrite versions to "catalog:" in non-config packages.
+      const shouldMigrateThisFile = !isConfigTsPackageJson;
 
       for (const [dependencyName, rawSpecifier] of Object.entries(record)) {
         const specifier = rawSpecifier.trim();
 
         if (specifier === WORKSPACE_VALUE) {
-            if (!workspacePackageNames.has(dependencyName)) {
-              missingWorkspaceDependencies.push(
-                `${path} -> ${sectionName} -> ${dependencyName}: uses "${WORKSPACE_VALUE}" but no workspace package with name "${dependencyName}" was found.`
-              );
-            }
+          if (!workspacePackageNames.has(dependencyName)) {
+            missingWorkspaceDependencies.push(
+              `${path} -> ${sectionName} -> ${dependencyName}: uses "${WORKSPACE_VALUE}" but no workspace package with name "${dependencyName}" was found.`
+            );
+          }
 
           continue;
         }
 
-        if (specifier.startsWith(CATALOG_PREFIX)) {
-          const catalogKey = specifier.slice(CATALOG_PREFIX.length).trim();
-
-          if (!catalogKey) {
-            missingCatalogKeys.push(
-              `${path} -> ${sectionName} -> ${dependencyName}: uses "${CATALOG_PREFIX}" without a key.`
-            );
-            continue;
-          }
-
-          if (!Object.prototype.hasOwnProperty.call(catalog, catalogKey)) {
+        // Default catalog reference: "catalog:"
+        if (specifier === CATALOG_PREFIX) {
+          if (!Object.prototype.hasOwnProperty.call(catalog, dependencyName)) {
             const versionFromConfig =
-              existingConfigDependencies[catalogKey] ?? undefined;
+              existingConfigDependencies[dependencyName] ?? undefined;
 
             if (!versionFromConfig) {
-              missingCatalogKeys.push(
-                `${path} -> ${sectionName} -> ${dependencyName}: references catalog key "${catalogKey}" but no version is defined in root catalog or in ${CONFIG_TS_PACKAGE_JSON_PATH}.`
+              missingDefaultCatalogEntries.push(
+                `${path} -> ${sectionName} -> ${dependencyName}: uses "${CATALOG_PREFIX}" but "${dependencyName}" is not defined in the root package.json "catalog" field or in ${CONFIG_TS_PACKAGE_JSON_PATH}.`
               );
               continue;
             }
 
-            catalog[catalogKey] = versionFromConfig;
+            catalog[dependencyName] = versionFromConfig;
           }
 
           continue;
         }
 
+        // Named catalog reference: "catalog:<name>"
+        if (specifier.startsWith(CATALOG_PREFIX)) {
+          const catalogName = specifier.slice(CATALOG_PREFIX.length);
+
+          if (!catalogName) {
+            // Handled above as default catalog.
+            continue;
+          }
+
+          const existingGroup =
+            rootPackageJson.catalogs?.[catalogName] ?? undefined;
+
+          const group =
+            catalogs[catalogName] ??
+            (catalogs[catalogName] = { ...(existingGroup ?? {}) });
+
+          if (!Object.prototype.hasOwnProperty.call(group, dependencyName)) {
+            const versionFromConfig =
+              existingConfigDependencies[dependencyName] ?? undefined;
+
+            if (!versionFromConfig) {
+              missingNamedCatalogEntries.push(
+                `${path} -> ${sectionName} -> ${dependencyName}: uses "${specifier}" but "${dependencyName}" is not defined in root package.json "catalogs.${catalogName}" or in ${CONFIG_TS_PACKAGE_JSON_PATH}.`
+              );
+              continue;
+            }
+
+            group[dependencyName] = versionFromConfig;
+          }
+
+          continue;
+        }
+
+        // Non-catalog, non-workspace dependency: migrate to default catalog.
         if (!shouldMigrateThisFile) {
           continue;
         }
 
-        const catalogKey = dependencyName;
-
-        let catalogVersion = catalog[catalogKey];
+        let catalogVersion = catalog[dependencyName];
 
         if (!catalogVersion) {
           catalogVersion =
-            existingConfigDependencies[catalogKey] || specifier;
+            existingConfigDependencies[dependencyName] || specifier;
 
-          catalog[catalogKey] = catalogVersion;
+          catalog[dependencyName] = catalogVersion;
         }
 
-        record[dependencyName] = `${CATALOG_PREFIX}${catalogKey}`;
+        record[dependencyName] = CATALOG_PREFIX;
         changedPackagePaths.add(path);
       }
     }
   }
 
-  if (missingCatalogKeys.length > 0) {
+  if (missingDefaultCatalogEntries.length > 0) {
     console.error(
-      "[migrate-catalog] Unable to complete migration because some existing catalog references do not have a concrete version.\n" +
-        `Please define versions for the following catalog keys in "${CONFIG_TS_PACKAGE_JSON_PATH}" and re-run the script:\n\n` +
-        missingCatalogKeys.map((entry) => `- ${entry}`).join("\n") +
+      "[migrate-catalog] Unable to complete migration because some default catalog references do not have a concrete version.\n" +
+        `Please define versions for the following dependencies in the root package.json "catalog" field or in "${CONFIG_TS_PACKAGE_JSON_PATH}" and re-run the script:\n\n` +
+        missingDefaultCatalogEntries.map((entry) => `- ${entry}`).join("\n") +
+        "\n"
+    );
+    process.exit(1);
+  }
+
+  if (missingNamedCatalogEntries.length > 0) {
+    console.error(
+      "[migrate-catalog] Unable to complete migration because some named catalog references do not have a concrete version.\n" +
+        `Please define versions for the following dependencies in the appropriate root package.json "catalogs" entry or in "${CONFIG_TS_PACKAGE_JSON_PATH}" and re-run the script:\n\n` +
+        missingNamedCatalogEntries.map((entry) => `- ${entry}`).join("\n") +
         "\n"
     );
     process.exit(1);
@@ -235,6 +276,9 @@ const main = async () => {
 
   // Sync root catalog with the computed catalog map.
   rootPackageJson.catalog = catalog;
+  if (Object.keys(catalogs).length > 0) {
+    rootPackageJson.catalogs = catalogs;
+  }
   changedPackagePaths.add(ROOT_PACKAGE_JSON_PATH);
 
   for (const path of changedPackagePaths) {
@@ -248,7 +292,7 @@ const main = async () => {
   }
 
   console.log(
-    '[migrate-catalog] Migration complete. All dependencies now use "catalog:" (except those using "workspace:*"), and catalog versions are synced with "config/ts/package.json".'
+    '[migrate-catalog] Migration complete. All non-config workspace dependencies now use default or named Bun catalogs ("catalog:" / "catalog:<name>") where applicable (except those using "workspace:*"), and all referenced catalog entries have concrete versions in the root package.json "catalog" / "catalogs" fields.'
   );
 };
 
