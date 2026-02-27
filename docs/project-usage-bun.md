@@ -110,7 +110,7 @@ From this workspace:
 bun run <script-name>
 ```
 
-Examples (depending on which scripts are defined in `package.json`):
+Examples (as currently defined in the root `package.json`):
 
 - Root `prepare` script (sets up Husky Git hooks defined by `@aidoris/base`):
 
@@ -118,28 +118,16 @@ Examples (depending on which scripts are defined in `package.json`):
   bun run prepare
   ```
 
-- Start a development server:
+- Dependency catalog migration (normalizes workspace dependencies to use Bun catalogs and syncs the root `catalog`/`catalogs` fields):
 
   ```bash
-  bun run dev
+  bun run migrate:catalog
   ```
 
-- Run tests:
+> The exact set of available scripts depends on the current contents of this monorepo and may grow over time.  
+> Check the `scripts` section of the root `package.json` (and any workspace package’s `package.json`) to see which commands are available, and run them with `bun run <script-name>`.
 
-  ```bash
-  bun test
-  ```
-
-- Run linting:
-
-  ```bash
-  bun run lint
-  ```
-
-> The exact set of available scripts depends on the current contents of this monorepo.  
-> Check the `scripts` section of the root `package.json` (and any workspace package’s `package.json`) to see which commands are available.
-
-> Adjust `<script-name>` to match the actual scripts defined in this workspace’s `package.json`.
+> For details on how the dependency catalog works and what `migrate:catalog` does, see [Dependency catalog](dependency-catalog.md).
 
 ---
 

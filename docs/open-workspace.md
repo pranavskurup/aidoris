@@ -69,9 +69,9 @@ code .config/aidoris.worktree.code-workspace
 
 This opens the multi-root worktree workspace in a new VS Code window.
 
-### Creating a new Git worktree for a branch and adding it to the workspace
+### Working with additional Git worktrees
 
-You can create an additional Git worktree for a new branch (for example, a feature branch) and include it in the same multi-root workspace.
+You can still create additional Git worktrees for new branches (for example, feature branches). However, the checked-in workspace files in `.config/` are **validated by a pre-commit hook** and their `folders` entries must remain unchanged.
 
 #### 1. Create a new worktree from `develop`
 
@@ -92,25 +92,26 @@ git worktree add ../feature-my-branch feature/my-branch
 
 This creates a new sibling directory (for example, `feature-my-branch`) next to `main` and `develop`, checked out at `feature/my-branch`.
 
-#### 2. Add the new worktree to `aidoris.worktree.code-workspace`
+#### 2. Open the new worktree in your editor
 
-Open the worktree workspace file in an editor:
+To work on the new worktree in VS Code or a compatible IDE, you have a few options:
 
-- `develop/.config/aidoris.worktree.code-workspace`
+- **Open the worktree directly**
+  - From the parent directory that contains `main`, `develop`, and your new worktree:
+  - Run:
 
-Locate the `folders` array and add a new entry that points to the new worktree directory, using a relative path similar to the existing entries. For example, if your new worktree directory is a sibling of `main` and `develop`:
+    ```bash
+    code ../feature-my-branch
+    ```
 
-```json
-{
-  "folders": [
-    { "path": "../../main" },
-    { "path": "../../develop" },
-    { "path": "../../feature-my-branch" }
-  ]
-}
-```
+  - Or use **File → Open Folder…** in the UI and select the new worktree directory.
 
-Save the file. The next time you open `aidoris.worktree.code-workspace`, VS Code will show three roots in the same window: `main`, `develop`, and your new worktree for `feature/my-branch`.
+- **Create your own multi-root workspace (optional)**
+  - If you want a multi-root view that includes the new worktree alongside `main` and/or `develop`, you can create a separate `.code-workspace` file (for example, in your home directory or another location outside `.config/`) and add the desired folders there.
+  - This custom workspace will not be validated by the repository’s pre-commit hooks.
+
+> Do **not** modify `.config/aidoris.code-workspace` or `.config/aidoris.worktree.code-workspace` to add or remove folders.  
+> A Husky pre-commit hook enforces their `folders` arrays and will fail commits if they are changed. For more details, see [Git hooks & workspace validation](git-hooks-and-workspace-validation.md).
 
 ### Open in other VS Code–based IDEs
 
