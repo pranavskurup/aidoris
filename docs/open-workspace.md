@@ -1,6 +1,18 @@
 ## Opening this workspace in VS Code or VS Code–based IDEs
 
-This project includes workspace configuration files that can be opened directly in VS Code and compatible editors (such as Cursor or VSCodium).
+This is the **develop** workspace, a Bun-based monorepo whose root package is `@aidoris/base`.  
+When you open the workspace files described below, VS Code and compatible editors (such as Cursor or VSCodium) load the main folders and packages defined in `package.json` (for example `cli`, `config`, `daemon`, `lib`, and `schema`) into a single window so you can work across the whole monorepo at once.
+
+### Workspace folders included
+
+When you open the workspace files, the explorer typically includes folders such as:
+
+- `cli/**` — CLI tools and entrypoints.
+- `config/**` — shared configuration and workspace-level tooling.
+- `daemon/**` — daemon processes and background services.
+- `lib/**` — shared libraries, repositories, services, and database utilities.
+- `schema/**` — shared schemas and types.
+- `.config/` — the workspace configuration files themselves.
 
 The workspace files are:
 
@@ -14,7 +26,7 @@ Use the steps below to open them.
 1. Start **VS Code**.
 2. In the top menu, choose **File → Open Workspace from File…** (or **Open Workspace** in some VS Code–based IDEs).
 3. In the file chooser:
-   - Navigate to this project.
+   - Navigate to the develop workspace.
    - Open the `.config` directory.
    - Select `aidoris.code-workspace`.
 4. Click **Open**.
@@ -40,7 +52,7 @@ The `aidoris.worktree.code-workspace` file is useful when you are working with G
 1. Start **VS Code**.
 2. In the top menu, choose **File → Open Workspace from File…**.
 3. In the file chooser:
-   - Navigate to this project.
+   - Navigate to the develop workspace.
    - Open the `.config` directory.
    - Select `aidoris.worktree.code-workspace`.
 4. Click **Open**.
@@ -106,7 +118,7 @@ For other editors built on VS Code (for example, Cursor or VSCodium):
 
 1. Launch the editor.
 2. Use the **File** menu option that mentions **Workspace** (for example, **Open Workspace**, **Open Workspace from File…**, or similar).
-3. Browse to the project, go into the `.config` folder, and choose `aidoris.code-workspace`.
+3. Browse to the develop workspace, go into the `.config` folder, and choose `aidoris.code-workspace`.
 
 Once opened, you can pin this workspace in your editor’s recent workspaces list for quicker access in the future.
 
