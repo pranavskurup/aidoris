@@ -1,0 +1,23 @@
+{
+  "name": "@aidoris/logger",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "packageManager": "bun@1.3.9",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "clean": "rimraf dist",
+    "dev": "bun --watch src/index.ts",
+    "build": "bun x tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "winston": "catalog:"
+  },
+  "devDependencies": {
+    "rimraf": "catalog:",
+    "@aidoris/ts-config": "workspace:*",
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

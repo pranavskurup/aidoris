@@ -8,6 +8,7 @@
     "cli/**",
     "config/**",
     "daemon/**",
+    "lib/logger",
     "lib/db",
     "lib/repo/**",
     "lib/svc/**",
@@ -26,6 +27,8 @@
     "husky": "^9.1.7",
     "@elysiajs/openapi": "^1.4.14",
     "elysia": "^1.4.26",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "winston": "^3.17.0",
+    "rimraf": "^6.1.3"
   }
 }

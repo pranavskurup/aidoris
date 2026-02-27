@@ -1,0 +1,18 @@
+{
+    "extends": "@aidoris/ts-config/tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "noEmit": false,
+        "rootDir": "./src",
+        "removeComments": true,
+        "sourceMap": false,
+        "declaration": true,
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
