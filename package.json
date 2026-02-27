@@ -4,6 +4,11 @@
   "type": "module",
   "private": true,
   "packageManager": "bun@1.3.9",
+  "workspaces":[
+    "cli/**",
+    "config/**",
+    "daemon/**"
+  ],
   "scripts": {
     "prepare": "husky"
   },
