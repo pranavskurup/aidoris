@@ -1,7 +1,14 @@
 {
-    "name": "@aidoris/base",
-    "version": "0.0.1",
-    "type": "module",
-    "private": true,
-    "packageManager": "bun@1.3.9"
+  "name": "@aidoris/base",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "packageManager": "bun@1.3.9",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.9",
+    "husky": "^9.1.7"
+  }
 }
