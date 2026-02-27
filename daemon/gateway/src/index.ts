@@ -15,7 +15,7 @@ const app = new Elysia()
             })
         }
     })
-    .listen(3000)
+    .listen(4102)
 
 console.log(
     `🦊 Aidoris Gateway is running at http://${app.server?.hostname}:${app.server?.port} (OpenAPI docs at /openapi)`

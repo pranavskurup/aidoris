@@ -15,7 +15,7 @@ const app = new Elysia()
             })
         }
     })
-    .listen(3000)
+    .listen(4101)
 
 console.log(
     `🦊 Aidoris Agent is running at http://${app.server?.hostname}:${app.server?.port} (OpenAPI docs at /openapi)`
