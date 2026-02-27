@@ -1,0 +1,7 @@
+{
+    "name": "@aidoris/gateway-repo",
+    "version": "0.0.1",
+    "type": "module",
+    "private": true,
+    "packageManager": "bun@1.3.9"
+}

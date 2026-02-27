@@ -25,13 +25,49 @@
       "name": "@aidoris/gateway-daemon",
       "version": "0.0.1",
     },
+    "lib/db": {
+      "name": "@aidoris/db",
+      "version": "0.0.1",
+    },
+    "lib/repo/agent": {
+      "name": "@aidoris/agent-repo",
+      "version": "0.0.1",
+    },
+    "lib/repo/gateway": {
+      "name": "@aidoris/gateway-repo",
+      "version": "0.0.1",
+    },
+    "lib/svc/agent": {
+      "name": "@aidoris/agent-svc",
+      "version": "0.0.1",
+    },
+    "lib/svc/gateway": {
+      "name": "@aidoris/gateway-svc",
+      "version": "0.0.1",
+    },
+    "schema/common": {
+      "name": "@aidoris/common-schema",
+      "version": "0.0.1",
+    },
   },
   "packages": {
     "@aidoris/agent-daemon": ["@aidoris/agent-daemon@workspace:daemon/agent"],
 
+    "@aidoris/agent-repo": ["@aidoris/agent-repo@workspace:lib/repo/agent"],
+
+    "@aidoris/agent-svc": ["@aidoris/agent-svc@workspace:lib/svc/agent"],
+
     "@aidoris/cli": ["@aidoris/cli@workspace:cli/aidoris"],
 
+    "@aidoris/common-schema": ["@aidoris/common-schema@workspace:schema/common"],
+
+    "@aidoris/db": ["@aidoris/db@workspace:lib/db"],
+
     "@aidoris/gateway-daemon": ["@aidoris/gateway-daemon@workspace:daemon/gateway"],
+
+    "@aidoris/gateway-repo": ["@aidoris/gateway-repo@workspace:lib/repo/gateway"],
+
+    "@aidoris/gateway-svc": ["@aidoris/gateway-svc@workspace:lib/svc/gateway"],
 
     "@aidoris/ts-config": ["@aidoris/ts-config@workspace:config/ts"],
 
